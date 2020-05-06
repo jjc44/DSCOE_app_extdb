@@ -1,0 +1,75 @@
+---
+output: 
+  pdf_document
+classoption: landscape
+geometry: margin=.5in
+linestretch: 1
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+params:
+  cyl: NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(comment = NA)
+
+library(kableExtra)
+library(dplyr)
+library(dbplyr)
+library(ggplot2)
+library(DBI)
+library(odbc)
+library(gridExtra)
+```
+
+
+```{r}
+# This path needs to point to wherever the IPO data base is...
+db_path <- "Driver={ODBC Driver 17 for SQL Server};Server=tcp:dscoedbserver.database.windows.net,1433;Database=dscoedb;Uid=serveradmin;Pwd={DSCOEdb1234};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+
+MY_db <- dbConnect(odbc::odbc(),
+                   .connection_string = db_path)
+cyls <- unlist(params$cyl)
+df <- tbl(MY_db, "app_tbl") %>% filter(cyl %in% cyls) %>% collect()
+df <- df %>%  rename("Cylinders"=cyl, "Number Owned"=numcars, "What I Liked"=likes)
+```
+
+```{r, fig.dim=c(9,2), results='asis'}
+for (i in unique(df$Cylinders)) {
+  tmp_df <- df %>%  filter(Cylinders==i)
+     
+   # Cylinder plot data (HP vs Displacement)
+    plot_data <- tbl(MY_db, "new_tbl") %>% filter(cyl == i ) %>% 
+      select(hp, disp) %>% 
+      rename(HP=hp, Displacement=disp) %>% collect()
+
+    # Plot to show HP vs Displacement for this cylinder
+p1 <-  ggplot(data= plot_data, aes(x=HP, y=Displacement)) + 
+      geom_point() + labs(title="Power and Engine Displacement") + 
+      theme_bw() + theme(panel.border = element_blank(), 
+                         plot.title = element_text(hjust = 0.5))
+    # Plot to show Number Cars of Owned
+p2 <-  ggplot(data= df, aes(x=Cylinders, y=`Number Owned`)) + 
+      geom_boxplot() + geom_point() + labs(title="Number Cars of Owned", y="Number of Cars Owned") + 
+      theme_bw() + theme(axis.text.x = element_blank(),
+                         panel.border = element_blank(), 
+                         plot.title = element_text(hjust = 0.5))
+
+cat("  \n\n", "Cylinder", i, "  \n") #Display Cylinder Number at the top of page
+
+grid.arrange(p1, p2, nrow=1)  # Display plots
+
+# Display Submitted Comments each in its own table
+topics <- c("Number Owned", "What I Liked")
+for (j in topics) {
+  print(kable(tmp_df %>% select(Cylinders, j), "latex", booktabs=T) %>%  column_spec(3, width = "7in") )
+}
+
+cat("  \n\\pagebreak\n  ") #start a new page for the next Cylinder
+
+}
+```
