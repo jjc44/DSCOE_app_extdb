@@ -43,6 +43,10 @@ db_path <- "Driver={ODBC Driver 17 for SQL Server};Server=tcp:dscoedbserver.data
 MY_db <- dbConnect(odbc::odbc(),
                    .connection_string = db_path)
 
+onStop(function() {
+  dbDisconnect(MY_db)
+  
+})
 # ---Application
 shinyApp(
   ui = fluidPage(
@@ -117,7 +121,7 @@ shinyApp(
  
     # Displays options based on selection of cylinder
     output$hp_info <- renderTable({
-      MY_db <- dbConnect(odbc::odbc(),  .connection_string = db_path)
+      #MY_db <- dbConnect(odbc::odbc(),  .connection_string = db_path)
       tbl(MY_db, "new_tbl") %>% filter(cyl == local(input$cyl) ) %>% 
         select(cyl, hp, disp) %>% 
         rename(Cylinders=cyl, HP=hp, Displacement=disp) %>% distinct() %>% collect()

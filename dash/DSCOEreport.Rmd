@@ -72,4 +72,6 @@ for (j in topics) {
 cat("  \n\\pagebreak\n  ") #start a new page for the next Cylinder
 
 }
+
+dbDisconnect(MY_db)
 ```

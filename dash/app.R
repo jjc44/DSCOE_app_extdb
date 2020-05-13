@@ -13,6 +13,11 @@ db_path <- "Driver={ODBC Driver 17 for SQL Server};Server=tcp:dscoedbserver.data
 MY_db <- dbConnect(odbc::odbc(),
                    .connection_string = db_path)
 
+onStop(function() {
+  dbDisconnect(MY_db)
+  
+})
+
 ui <- dashboardPage(
   dashboardHeader(title = "DSCOE Dashboard", 
                   dropdownMenuOutput("notif"),
@@ -64,7 +69,7 @@ server <-function(input, output, session) {
 
   # Notification for new submissions in last 12 hours 
   output$notif <- renderMenu({
-    MY_db <- dbConnect(odbc::odbc(),  .connection_string = db_path)
+    #MY_db <- dbConnect(odbc::odbc(),  .connection_string = db_path)
     Cyltime <- tbl(MY_db, "app_tbl") %>% 
       collect() %>% 
       filter(as.numeric(difftime(as.POSIXct(timestamp,format="%Y%m%d-%H%M%OS"), 
@@ -80,7 +85,7 @@ server <-function(input, output, session) {
   })
 
   output$task <- renderMenu({ 
-    MY_db <- dbConnect(odbc::odbc(),  .connection_string = db_path)
+    #MY_db <- dbConnect(odbc::odbc(),  .connection_string = db_path)
 
     num <- length(unlist(tbl(MY_db, "app_tbl") %>% select(cyl) %>% collect()))
     dropdownMenu(type = "notifications", badgeStatus = "success",
@@ -90,7 +95,7 @@ server <-function(input, output, session) {
   })
   
   output$cyl_bar <- renderPlot({ 
-    MY_db <- dbConnect(odbc::odbc(),  .connection_string = db_path)
+    #MY_db <- dbConnect(odbc::odbc(),  .connection_string = db_path)
     
     # Cylinder plot data (HP vs Displacement)
     plot_data <- tbl(MY_db, "new_tbl") %>% filter(cyl == local(input$cyl) ) %>% 
@@ -105,7 +110,7 @@ server <-function(input, output, session) {
   })
   
   output$numcars_bar <- renderPlot({ 
-    MY_db <- dbConnect(odbc::odbc(),  .connection_string = db_path)
+    #MY_db <- dbConnect(odbc::odbc(),  .connection_string = db_path)
     
     # Count plot data 
     plot_data1 <- tbl(MY_db, "app_tbl") %>% filter(cyl == local(input$cyl) ) %>% 
