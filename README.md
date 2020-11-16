@@ -2,7 +2,7 @@
 
 ## Background
 
-This tutorial will take the previously developed shiny app, dash, and database and build a docker container to efficiently host the app on Azure via App Services. You can sign up for a free Azure Dev account that gives you a chunk of free access that is plenty to follow this tutorial or your own small project.  I used GitHub and DockerHub in the process of this tutorial, as these are very beneficial to versioning and development of your workflow. 
+This tutorial will take a previously developed shiny app, dash, and database and build a docker container to efficiently host the app on Azure via App Services. You can sign up for a free Azure Dev account that gives you a chunk of free access that is plenty to follow this tutorial or your own small project.  I used GitHub and DockerHub in the process of this tutorial, as these are very beneficial to versioning and development of your workflow. 
 
 The app code and project files are available in this repo [linked right here](https://github.com/jjc44/DSCOE_app_extdb), so I won't be reproducing the app code in this post.
 
